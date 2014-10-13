@@ -1,12 +1,11 @@
 WebRTC Example
 ==============
 
-#### shane tully
-#### shanetully.com
+#### shane tully (shanetully.com)
 
 An 'as simple as it gets' WebRTC example.
 
-See LINK for a detailed walkthrough of the code.
+See [https://shanetully.com/2014/09/a-dead-simple-webrtc-example/](https://shanetully.com/2014/09/a-dead-simple-webrtc-example/) for a detailed walkthrough of the code.
 
 ### Usage
 

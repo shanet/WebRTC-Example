@@ -50,7 +50,7 @@ function gotMessageFromServer(message) {
     if(signal.sdp) {
         peerConnection.setRemoteDescription(new RTCSessionDescription(signal.sdp), function() {
             peerConnection.createAnswer(gotDescription, createAnswerError);
-        });
+        }, function(){}, function(){});
     } else if(signal.ice) {
         peerConnection.addIceCandidate(new RTCIceCandidate(signal.ice));
     }

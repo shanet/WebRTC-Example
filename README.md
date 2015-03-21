@@ -18,6 +18,8 @@ $ node server/server.js
 
 With the client running, open `client/index.html` in a recent version of either Firefox or Chrome.
 
+Note that if using Chrome and opening the file locally, you must run Chrome with the `--allow-file-access-from-files` flag. Or you could serve the files with a webserver (Python's SimpleHTTPServer is a good option).
+
 ### License
 
 The MIT License (MIT)

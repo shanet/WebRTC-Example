@@ -21,7 +21,7 @@ function pageReady() {
     };
 
     if(navigator.getUserMedia) {
-        navigator.getUserMedia(constraints, getUserMediaSuccess, getUserMediaError);
+        navigator.getUserMedia(constraints, getUserMediaSuccess, errorHandler);
     } else {
         alert('Your browser does not support getUserMedia API');
     }
@@ -39,7 +39,7 @@ function start(isCaller) {
     peerConnection.addStream(localStream);
 
     if(isCaller) {
-        peerConnection.createOffer(gotDescription, createOfferError);
+        peerConnection.createOffer(gotDescription, errorHandler);
     }
 }
 
@@ -49,8 +49,8 @@ function gotMessageFromServer(message) {
     var signal = JSON.parse(message.data);
     if(signal.sdp) {
         peerConnection.setRemoteDescription(new RTCSessionDescription(signal.sdp), function() {
-            peerConnection.createAnswer(gotDescription, createAnswerError);
-        }, function(){}, function(){});
+            peerConnection.createAnswer(gotDescription, errorHandler);
+        }, errorHandler);
     } else if(signal.ice) {
         peerConnection.addIceCandidate(new RTCIceCandidate(signal.ice));
     }
@@ -70,20 +70,10 @@ function gotDescription(description) {
 }
 
 function gotRemoteStream(event) {
-    console.log("got remote stream");
+    console.log('got remote stream');
     remoteVideo.src = window.URL.createObjectURL(event.stream);
 }
 
-// Error functions....
-
-function getUserMediaError(error) {
-    console.log(error);
-}
-
-function createOfferError(error) {
-    console.log(error);
-}
-
-function createAnswerError(error) {
+function errorHandler(error) {
     console.log(error);
 }

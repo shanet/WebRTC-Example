@@ -1,26 +1,46 @@
-var ws_cfg = {
-    ssl: true,
-    port: 3434,
-    ssl_key: '/path/to/your/ssl.key',
-    ssl_cert: '/path/to/your/ssl.bundle.crt'
-};
+var HTTPS_PORT = 8443;
 
-var processRequest = function(req, res) {
-    console.log("Request received.")
-};
-
-var httpServ = require('https');
 var fs = require('fs');
-var app = null;
-
-app = httpServ.createServer({
-  key: fs.readFileSync(ws_cfg.ssl_key),
-  cert: fs.readFileSync(ws_cfg.ssl_cert)
-}, processRequest).listen(ws_cfg.port);
-
+var https = require('https');
 var WebSocketServer = require('ws').Server;
 
-var wss = new WebSocketServer({server: app});
+// Yes, SSL is required
+var serverConfig = {
+    key: fs.readFileSync('key.pem'),
+    cert: fs.readFileSync('cert.pem'),
+};
+
+// ----------------------------------------------------------------------------------------
+
+// Create a server for the client html page
+var handleRequest = function(request, response) {
+    // Render the single client html file for any request the HTTP server receives
+    console.log('request received: ' + request.url);
+
+    if(request.url == '/') {
+        response.writeHead(200, {'Content-Type': 'text/html'});
+        response.end(fs.readFileSync('client/index.html'));
+    } else if(request.url == '/webrtc.js') {
+        response.writeHead(200, {'Content-Type': 'application/javascript'});
+        response.end(fs.readFileSync('client/webrtc.js'));
+    }
+};
+
+var httpsServer = https.createServer(serverConfig, handleRequest);
+httpsServer.listen(HTTPS_PORT, '0.0.0.0');
+
+// ----------------------------------------------------------------------------------------
+
+// Create a server for handling websocket calls
+var wss = new WebSocketServer({server: httpsServer});
+
+wss.on('connection', function(ws) {
+    ws.on('message', function(message) {
+        // Broadcast any received message to all clients
+        console.log('received: %s', message);
+        wss.broadcast(message);
+    });
+});
 
 wss.broadcast = function(data) {
     for(var i in this.clients) {
@@ -28,9 +48,4 @@ wss.broadcast = function(data) {
     }
 };
 
-wss.on('connection', function(ws) {
-    ws.on('message', function(message) {
-        console.log('received: %s', message);
-        wss.broadcast(message);
-    });
-});
+console.log('Server running. Visit https://localhost:' + HTTPS_PORT + ' in Firefox/Chrome (note the HTTPS; there is no HTTP -> HTTPS redirect!)');

@@ -1,18 +1,22 @@
 var localVideo;
 var remoteVideo;
 var peerConnection;
-var peerConnectionConfig = {'iceServers': [{'url': 'stun:stun.services.mozilla.com'}, {'url': 'stun:stun.l.google.com:19302'}]};
+var uuid;
 
-navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
-window.RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
-window.RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate || window.webkitRTCIceCandidate;
-window.RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription || window.webkitRTCSessionDescription;
+var peerConnectionConfig = {
+    'iceServers': [
+        {'urls': 'stun:stun.services.mozilla.com'},
+        {'urls': 'stun:stun.l.google.com:19302'},
+    ]
+};
 
 function pageReady() {
+    uuid = uuid();
+
     localVideo = document.getElementById('localVideo');
     remoteVideo = document.getElementById('remoteVideo');
 
-    serverConnection = new WebSocket('wss://' + window.location.hostname + ':3434');
+    serverConnection = new WebSocket('wss://' + window.location.hostname + ':8443');
     serverConnection.onmessage = gotMessageFromServer;
 
     var constraints = {
@@ -20,8 +24,8 @@ function pageReady() {
         audio: true,
     };
 
-    if(navigator.getUserMedia) {
-        navigator.getUserMedia(constraints, getUserMediaSuccess, errorHandler);
+    if(navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia(constraints).then(getUserMediaSuccess).catch(errorHandler);
     } else {
         alert('Your browser does not support getUserMedia API');
     }
@@ -39,7 +43,7 @@ function start(isCaller) {
     peerConnection.addStream(localStream);
 
     if(isCaller) {
-        peerConnection.createOffer(gotDescription, errorHandler);
+        peerConnection.createOffer().then(createdDescription).catch(errorHandler);
     }
 }
 
@@ -47,26 +51,34 @@ function gotMessageFromServer(message) {
     if(!peerConnection) start(false);
 
     var signal = JSON.parse(message.data);
+
+    // Ignore messages from ourself
+    if(signal.uuid == uuid) return;
+
     if(signal.sdp) {
-        peerConnection.setRemoteDescription(new RTCSessionDescription(signal.sdp), function() {
-            peerConnection.createAnswer(gotDescription, errorHandler);
-        }, errorHandler);
+        peerConnection.setRemoteDescription(new RTCSessionDescription(signal.sdp)).then(function() {
+            // Only create answers in response to offers
+            if(signal.sdp.type == 'offer') {
+                peerConnection.createAnswer().then(createdDescription).catch(errorHandler);
+            }
+        }).catch(errorHandler);
     } else if(signal.ice) {
-        peerConnection.addIceCandidate(new RTCIceCandidate(signal.ice));
+        peerConnection.addIceCandidate(new RTCIceCandidate(signal.ice)).catch(errorHandler);
     }
 }
 
 function gotIceCandidate(event) {
     if(event.candidate != null) {
-        serverConnection.send(JSON.stringify({'ice': event.candidate}));
+        serverConnection.send(JSON.stringify({'ice': event.candidate, 'uuid': uuid}));
     }
 }
 
-function gotDescription(description) {
+function createdDescription(description) {
     console.log('got description');
-    peerConnection.setLocalDescription(description, function () {
-        serverConnection.send(JSON.stringify({'sdp': description}));
-    }, function() {console.log('set description error')});
+
+    peerConnection.setLocalDescription(description).then(function() {
+        serverConnection.send(JSON.stringify({'sdp': peerConnection.localDescription, 'uuid': uuid}));
+    }).catch(errorHandler);
 }
 
 function gotRemoteStream(event) {
@@ -76,4 +88,14 @@ function gotRemoteStream(event) {
 
 function errorHandler(error) {
     console.log(error);
+}
+
+// Taken from http://stackoverflow.com/a/105074/515584
+// Strictly speaking, it's not a real UUID, but it gets the job done here
+function uuid() {
+  function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+  }
+
+  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
 }

@@ -9,7 +9,7 @@ See [https://shanetully.com/2014/09/a-dead-simple-webrtc-example/](https://shane
 
 Note: This repo is kept updated. The general ideas are there, but the above blog post may be somewhat out of date with the code in this repo.
 
-### Usage
+## Usage
 
 The signaling server uses Node.js and `ws` and can be started as such:
 
@@ -20,15 +20,15 @@ $ node server/server.js
 
 With the server running, open a recent version of Firefox or Chrome and visit `https://localhost:8443`. Note the HTTPS! There is no redirect from HTTP to HTTPS!
 
-### TLS
+## TLS
 
 Recent versions of Chrome require secure websockets for WebRTC. Thus, this example utilizes HTTPS. Included is a self-signed certificate that must be accepted in the browser for the example to work.
 
-### Problems?
+## Problems?
 
 WebRTC is a rapidly evolving beast. Being an example that I don't check often, I rely on users for reports if something breaks. Issues and pull requests are greatly appreciated.
 
-### License
+## License
 
 The MIT License (MIT)
 

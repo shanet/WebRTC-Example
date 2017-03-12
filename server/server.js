@@ -1,11 +1,12 @@
-var HTTPS_PORT = 8443;
+const HTTPS_PORT = 8443;
 
-var fs = require('fs');
-var https = require('https');
-var WebSocketServer = require('ws').Server;
+const fs = require('fs');
+const https = require('https');
+const WebSocket = require('ws');
+const WebSocketServer = WebSocket.Server;
 
 // Yes, SSL is required
-var serverConfig = {
+const serverConfig = {
     key: fs.readFileSync('key.pem'),
     cert: fs.readFileSync('cert.pem'),
 };
@@ -17,10 +18,10 @@ var handleRequest = function(request, response) {
     // Render the single client html file for any request the HTTP server receives
     console.log('request received: ' + request.url);
 
-    if(request.url == '/') {
+    if(request.url === '/') {
         response.writeHead(200, {'Content-Type': 'text/html'});
         response.end(fs.readFileSync('client/index.html'));
-    } else if(request.url == '/webrtc.js') {
+    } else if(request.url === '/webrtc.js') {
         response.writeHead(200, {'Content-Type': 'application/javascript'});
         response.end(fs.readFileSync('client/webrtc.js'));
     }
@@ -43,9 +44,11 @@ wss.on('connection', function(ws) {
 });
 
 wss.broadcast = function(data) {
-    for(var i in this.clients) {
-        this.clients[i].send(data);
-    }
+    this.clients.forEach(function(client) {
+        if(client.readyState === WebSocket.OPEN) {
+            client.send(data);
+        }
+    });
 };
 
 console.log('Server running. Visit https://localhost:' + HTTPS_PORT + ' in Firefox/Chrome (note the HTTPS; there is no HTTP -> HTTPS redirect!)');

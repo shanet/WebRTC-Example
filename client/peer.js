@@ -19,10 +19,12 @@ export function createPeer(peerExchange, peerConnectionConfig) {
 function createPeerExchangeMessageHandler(conn) {
     return function gotMessageFromServer(signal, send) {
         if(signal.sdp) {
+            console.log("SDP", signal.sdp.type);
             conn.setRemoteDescription(new RTCSessionDescription(signal.sdp))
             .then(() => {
                 // Only create answers in response to offers
                 if(signal.sdp.type == 'offer') {
+                    console.log("Creating answer", signal);
                     return conn.createAnswer()
                     .then(desc => {
                         conn.setLocalDescription(desc);

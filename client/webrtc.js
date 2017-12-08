@@ -30,7 +30,6 @@ async function setup() {
     });
 
     peerConnection.addStream(stream);
-    extendOffer();
 }
 
 function extendOffer() {

@@ -1,33 +1,46 @@
+import { createUUID } from './random.js';
+
 function errorHandler(error) {
     console.log(error);
+}
+
+function filter(uuid) {
+    return function filterSignal(callback) {
+        return function(signal) {
+            if (signal.uuid === uuid) {
+                console.log(`${uuid} ours, filtering`);
+                return;
+            }
+            callback(signal);
+        }
+    }
 }
 
 export function createHost(peerExchange, peerConnectionConfig) {
     const listeners = new Set();
 
     function onConnection(callback) {
-        listeners.push(callback);
+        listeners.add(callback);
     }
 
     function emitConnection(conn) {
         listeners.forEach(callback => callback(conn));
     }
 
-    function handleSDP(sdp) {
-        host.setRemoteDescription(new RTCSessionDescription(signal.sdp));
-    }
-
-    peerExchange.listen(async (signal, send) => {
+    peerExchange.listen(async signal => {
+        console.log("Host signal", signal);
         if (signal.sdp && signal.sdp.type === "offer") {
-            const host = createConn(peerExchange, peerConnectionConfig);
+            const {conn, send} = createConn(peerExchange, peerConnectionConfig);
 
             const remoteDesc = new RTCSessionDescription(signal.sdp);
-            await host.setRemoteDescription(remoteDesc);
+            await conn.setRemoteDescription(remoteDesc);
 
             const localDesc = await conn.createAnswer();
-            await host.setLocalDescription(localDesc);
+            await conn.setLocalDescription(localDesc);
 
-            send({'sdp': desc});
+            send({sdp: localDesc});
+
+            emitConnection(conn);
         }
     });
 
@@ -36,22 +49,69 @@ export function createHost(peerExchange, peerConnectionConfig) {
     };
 }
 
-export function createConn(peerExchange, peerConnectionConfig) {
-    const conn = new RTCPeerConnection(peerConnectionConfig);
+export function createGuest(peerExchange, peerConnectionConfig) {
+    const {conn, onSignal, send} = createConn(peerExchange, peerConnectionConfig);
 
-    conn.addEventListener('icecandidate', event => {
-        if(event.candidate != null) {
-            peerExchange.send({ice: event.candidate});
+    onSignal(async signal => {
+        console.log("Guest signal", signal);
+        if (signal.sdp && signal.sdp.type === "answer") {
+            const remoteDesc = new RTCSessionDescription(signal.sdp);
+            await conn.setRemoteDescription(remoteDesc);
         }
     });
 
+    async function connect() {
+        const localDesc = await conn.createOffer();
+        await conn.setLocalDescription(localDesc);
+        send({sdp: localDesc});
+    }
+
+    return {
+        conn,
+        connect,
+    };
+}
+
+
+export function createConn(peerExchange, peerConnectionConfig) {
+    const conn = new RTCPeerConnection(peerConnectionConfig);
+    const uuid = createUUID();
+
+    conn.addEventListener('icecandidate', event => {
+        if(event.candidate != null) {
+            send({ice: event.candidate});
+        }
+    });
+
+    const listeners = new Set();
+
+    function onSignal(callback) {
+        listeners.add(callback);
+    }
+
     peerExchange.listen(signal => {
+        if (signal.uuid === uuid) {
+            return;
+        }
+
+        listeners.forEach(callback => callback(signal));
+    });
+
+    onSignal(signal => {
         if(signal.ice) {
             conn.addIceCandidate(new RTCIceCandidate(signal.ice)).catch(errorHandler);
         }
     });
 
-    return conn;
+    function send(data) {
+        peerExchange.send(Object.assign({}, data, {uuid}));
+    }
+
+    return {
+        conn,
+        onSignal,
+        send,
+    };
 }
 
 export function createPeer(peerExchange, peerConnectionConfig) {

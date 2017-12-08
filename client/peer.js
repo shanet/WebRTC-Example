@@ -4,6 +4,7 @@ function errorHandler(error) {
 
 export function createPeer(peerExchange, peerConnectionConfig) {
     const conn = new RTCPeerConnection(peerConnectionConfig);
+
     peerExchange.listen(createPeerExchangeMessageHandler(conn));
 
     return conn;
@@ -12,14 +13,15 @@ export function createPeer(peerExchange, peerConnectionConfig) {
 function createPeerExchangeMessageHandler(conn) {
     return function gotMessageFromServer(signal, send) {
         if(signal.sdp) {
-            conn.setRemoteDescription(new RTCSessionDescription(signal.sdp)).then(function() {
+            conn.setRemoteDescription(new RTCSessionDescription(signal.sdp))
+            .then(() => {
                 // Only create answers in response to offers
                 if(signal.sdp.type == 'offer') {
-                    conn.createAnswer()
+                    return conn.createAnswer()
                     .then(desc => {
                         conn.setLocalDescription(desc);
                         send({'sdp': desc})
-                    }).catch(errorHandler);
+                    });
                 }
             }).catch(errorHandler);
         } else if(signal.ice) {

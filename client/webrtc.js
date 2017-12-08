@@ -33,7 +33,7 @@ function pageReady() {
 
 function getUserMediaSuccess(stream) {
     localStream = stream;
-    localVideo.src = window.URL.createObjectURL(stream);
+    localVideo.srcObject = stream;
 }
 
 function start(isCaller) {
@@ -83,7 +83,7 @@ function createdDescription(description) {
 
 function gotRemoteStream(event) {
     console.log('got remote stream');
-    remoteVideo.src = window.URL.createObjectURL(event.stream);
+    remoteVideo.srcObject = event.stream;
 }
 
 function errorHandler(error) {

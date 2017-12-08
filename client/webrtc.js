@@ -1,11 +1,10 @@
 import { dataChannelConfig, peerConnectionConfig } from './config.js';
-import { createUUID } from './random.js';
+import { createPeerExchange } from './peer.js';
 
 var localVideo;
 var localStream;
 var remoteVideo;
 var peerConnection;
-var uuid;
 var serverConnection;
 var dataChannel;
 
@@ -13,13 +12,11 @@ function pageReady() {
     document.querySelector("button#start")
     .addEventListener("click", start);
 
-    uuid = createUUID();
-
     localVideo = document.getElementById('localVideo');
     remoteVideo = document.getElementById('remoteVideo');
 
-    serverConnection = new WebSocket('wss://' + window.location.hostname + ':8443');
-    serverConnection.addEventListener('message', gotMessageFromServer);
+    serverConnection = createPeerExchange('wss://' + window.location.hostname + ':8443');
+    serverConnection.listen(gotMessageFromServer);
 
     var constraints = {
         video: true,
@@ -71,13 +68,8 @@ function start(isCaller) {
     }
 }
 
-function gotMessageFromServer(message) {
+function gotMessageFromServer(signal) {
     if(!peerConnection) start(false);
-
-    var signal = JSON.parse(message.data);
-
-    // Ignore messages from ourself
-    if(signal.uuid == uuid) return;
 
     if(signal.sdp) {
         peerConnection.setRemoteDescription(new RTCSessionDescription(signal.sdp)).then(function() {
@@ -93,7 +85,7 @@ function gotMessageFromServer(message) {
 
 function gotIceCandidate(event) {
     if(event.candidate != null) {
-        serverConnection.send(JSON.stringify({'ice': event.candidate, 'uuid': uuid}));
+        serverConnection.send({'ice': event.candidate});
     }
 }
 
@@ -101,7 +93,7 @@ function createdDescription(description) {
     console.log('got description');
 
     peerConnection.setLocalDescription(description).then(function() {
-        serverConnection.send(JSON.stringify({'sdp': peerConnection.localDescription, 'uuid': uuid}));
+        serverConnection.send({'sdp': peerConnection.localDescription});
     }).catch(errorHandler);
 }
 

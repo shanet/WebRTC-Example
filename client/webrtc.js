@@ -26,12 +26,10 @@ async function setup() {
         audio: true,
     };
 
-    navigator.mediaDevices.getUserMedia(constraints)
-    .then(stream => {
-        document.getElementById('localVideo').srcObject = stream;
-        peerConnection.addStream(stream);
-        extendOffer();
-    });
+    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+    document.getElementById('localVideo').srcObject = stream;
+    peerConnection.addStream(stream);
+    extendOffer();
 }
 
 function extendOffer() {

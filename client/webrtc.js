@@ -31,27 +31,6 @@ function setup() {
         document.getElementById('localVideo').srcObject = stream;
         peerConnection.addStream(stream);
     });
-
-    peerConnection.addEventListener('datachannel', function(dataChannel) {
-        dataChannel.channel.send('Hello there, I got your signal');
-    });
-
-    const dataChannel = peerConnection.createDataChannel("myLabel", dataChannelConfig);
-    dataChannel.addEventListener('error', function (error) {
-      console.log("Data Channel Error:", error);
-    });
-
-    dataChannel.addEventListener('message', function (event) {
-      console.log("Got Data Channel Message:", event.data);
-    });
-
-    dataChannel.addEventListener('open', function (event) {
-        console.log("Datachannel open", event);
-    });
-
-    dataChannel.addEventListener('close', function () {
-      console.log("The Data Channel is Closed");
-    });
 }
 
 function extendOffer() {

@@ -4,6 +4,12 @@ var remoteVideo;
 var peerConnection;
 var uuid;
 var serverConnection;
+var dataChannel;
+
+var dataChannelOptions = {
+  ordered: false, // do not guarantee order
+  maxRetransmitTime: 500, // in milliseconds
+};
 
 var peerConnectionConfig = {
     'iceServers': [
@@ -40,9 +46,31 @@ function getUserMediaSuccess(stream) {
 
 function start(isCaller) {
     peerConnection = new RTCPeerConnection(peerConnectionConfig);
+
     peerConnection.onicecandidate = gotIceCandidate;
     peerConnection.onaddstream = gotRemoteStream;
     peerConnection.addStream(localStream);
+
+    peerConnection.ondatachannel = function(dataChannel) {
+        dataChannel.channel.send('Hello there, I got your signal');
+    }
+
+    dataChannel = peerConnection.createDataChannel("myLabel", dataChannelOptions);
+    dataChannel.onerror = function (error) {
+      console.log("Data Channel Error:", error);
+    };
+
+    dataChannel.onmessage = function (event) {
+      console.log("Got Data Channel Message:", event.data);
+    };
+
+    dataChannel.onopen = function (event) {
+        console.log("Datachannel open", event);
+    };
+
+    dataChannel.onclose = function () {
+      console.log("The Data Channel is Closed");
+    };
 
     if(isCaller) {
         peerConnection.createOffer().then(createdDescription).catch(errorHandler);

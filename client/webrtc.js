@@ -11,7 +11,7 @@ var dataChannel;
 
 function pageReady() {
     document.querySelector("button#start")
-    .addEventListener("click", start);
+    .addEventListener("click", extendOffer);
 
     localVideo = document.getElementById('localVideo');
     remoteVideo = document.getElementById('remoteVideo');
@@ -71,7 +71,7 @@ function setup() {
     });
 }
 
-function start() {
+function extendOffer() {
     peerConnection.createOffer().then(createdDescription).catch(errorHandler);
 }
 

@@ -66,11 +66,6 @@ function createdDescription(description) {
     }).catch(errorHandler);
 }
 
-function gotRemoteStream(event) {
-    console.log('got remote stream');
-    remoteVideo.srcObject = event.stream;
-}
-
 function errorHandler(error) {
     console.log(error);
 }

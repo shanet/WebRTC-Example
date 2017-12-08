@@ -15,12 +15,6 @@ async function pageReady() {
 }
 
 async function setup() {
-    peerConnection = createPeer(serverConnection, peerConnectionConfig);
-
-    peerConnection.addEventListener('addstream', stream => {
-        document.getElementById('remoteVideo').srcObject = event.stream;
-    });
-
     var constraints = {
         video: true,
         audio: true,
@@ -28,6 +22,13 @@ async function setup() {
 
     const stream = await navigator.mediaDevices.getUserMedia(constraints);
     document.getElementById('localVideo').srcObject = stream;
+
+    peerConnection = createPeer(serverConnection, peerConnectionConfig);
+
+    peerConnection.addEventListener('addstream', stream => {
+        document.getElementById('remoteVideo').srcObject = event.stream;
+    });
+
     peerConnection.addStream(stream);
     extendOffer();
 }

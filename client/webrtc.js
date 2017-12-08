@@ -29,7 +29,6 @@ function getUserMediaSuccess(stream) {
 function setup() {
     peerConnection = createPeer(serverConnection, peerConnectionConfig);
 
-    peerConnection.addEventListener('icecandidate', gotIceCandidate);
     peerConnection.addEventListener('addstream', gotRemoteStream);
 
     if(navigator.mediaDevices.getUserMedia) {
@@ -72,12 +71,6 @@ function setup() {
 
 function extendOffer() {
     peerConnection.createOffer().then(createdDescription).catch(errorHandler);
-}
-
-function gotIceCandidate(event) {
-    if(event.candidate != null) {
-        serverConnection.send({'ice': event.candidate});
-    }
 }
 
 function createdDescription(description) {

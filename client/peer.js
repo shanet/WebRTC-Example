@@ -2,8 +2,16 @@ function errorHandler(error) {
     console.log(error);
 }
 
+
+
 export function createPeer(peerExchange, peerConnectionConfig) {
     const conn = new RTCPeerConnection(peerConnectionConfig);
+
+    conn.addEventListener('icecandidate', event => {
+        if(event.candidate != null) {
+            peerExchange.send({'ice': event.candidate});
+        }
+    });
 
     peerExchange.listen(createPeerExchangeMessageHandler(conn));
 

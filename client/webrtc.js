@@ -1,5 +1,5 @@
 import { dataChannelConfig, peerConnectionConfig } from './config.js';
-import { createPeerExchange } from './peer.js';
+import { createPeerExchange } from './peer-exchange.js';
 
 var localVideo;
 var localStream;

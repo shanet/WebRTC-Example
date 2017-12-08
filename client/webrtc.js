@@ -36,7 +36,7 @@ function getUserMediaSuccess(stream) {
     localVideo.srcObject = stream;
 }
 
-function start(isCaller) {
+function setup() {
     peerConnection = createPeer(peerConnectionConfig);
 
     peerConnection.addEventListener('icecandidate', gotIceCandidate);
@@ -63,6 +63,10 @@ function start(isCaller) {
     dataChannel.addEventListener('close', function () {
       console.log("The Data Channel is Closed");
     });
+}
+
+function start(isCaller) {
+    setup();
 
     if(isCaller) {
         peerConnection.createOffer().then(createdDescription).catch(errorHandler);

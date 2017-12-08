@@ -21,31 +21,21 @@ function pageReady() {
     setup();
 }
 
-function getUserMediaSuccess(stream) {
-    localStream = stream;
-    localVideo.srcObject = stream;
-}
-
 function setup() {
     peerConnection = createPeer(serverConnection, peerConnectionConfig);
 
     peerConnection.addEventListener('addstream', gotRemoteStream);
 
-    if(navigator.mediaDevices.getUserMedia) {
-        var constraints = {
-            video: true,
-            audio: true,
-        };
+    var constraints = {
+        video: true,
+        audio: true,
+    };
 
-        navigator.mediaDevices.getUserMedia(constraints)
-        .then(getUserMediaSuccess)
-        .then(() => {
-            peerConnection.addStream(localStream);
-        })
-        .catch(errorHandler);
-    } else {
-        alert('Your browser does not support getUserMedia API');
-    }
+    navigator.mediaDevices.getUserMedia(constraints)
+    .then(stream => {
+        localVideo.srcObject = stream;
+        peerConnection.addStream(stream);
+    });
 
     peerConnection.addEventListener('datachannel', function(dataChannel) {
         dataChannel.channel.send('Hello there, I got your signal');

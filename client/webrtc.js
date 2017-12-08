@@ -1,5 +1,6 @@
 import { dataChannelConfig, peerConnectionConfig } from './config.js';
 import { createPeerExchange } from './peer-exchange.js';
+import { createPeer } from './peer.js';
 
 var localVideo;
 var localStream;
@@ -36,7 +37,7 @@ function getUserMediaSuccess(stream) {
 }
 
 function start(isCaller) {
-    peerConnection = new RTCPeerConnection(peerConnectionConfig);
+    peerConnection = createPeer(peerConnectionConfig);
 
     peerConnection.addEventListener('icecandidate', gotIceCandidate);
     peerConnection.addEventListener('addstream', gotRemoteStream);

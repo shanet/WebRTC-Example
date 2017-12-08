@@ -2,7 +2,6 @@ import { dataChannelConfig, peerConnectionConfig } from './config.js';
 import { createPeerExchange } from './peer-exchange.js';
 import { createPeer } from './peer.js';
 
-var localVideo;
 var remoteVideo;
 var peerConnection;
 var serverConnection;
@@ -11,7 +10,6 @@ function pageReady() {
     document.querySelector("button#start")
     .addEventListener("click", extendOffer);
 
-    localVideo = document.getElementById('localVideo');
     remoteVideo = document.getElementById('remoteVideo');
 
     serverConnection = createPeerExchange('wss://' + window.location.hostname + ':8443');
@@ -31,7 +29,7 @@ function setup() {
 
     navigator.mediaDevices.getUserMedia(constraints)
     .then(stream => {
-        localVideo.srcObject = stream;
+        document.getElementById('localVideo').srcObject = stream;
         peerConnection.addStream(stream);
     });
 

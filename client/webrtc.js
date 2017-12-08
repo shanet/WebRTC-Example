@@ -19,6 +19,9 @@ var peerConnectionConfig = {
 };
 
 function pageReady() {
+    document.querySelector("button#start")
+    .addEventListener("click", start);
+
     uuid = createUUID();
 
     localVideo = document.getElementById('localVideo');
@@ -129,3 +132,5 @@ function createUUID() {
 
   return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
 }
+
+pageReady();

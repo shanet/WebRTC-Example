@@ -32,15 +32,15 @@ export function createHost(peerExchange, peerConnectionConfig) {
         if (signal.sdp && signal.sdp.type === "offer") {
             const {conn, send} = createConn(peerExchange, peerConnectionConfig);
 
+            emitConnection(conn);
+
             const remoteDesc = new RTCSessionDescription(signal.sdp);
-            await conn.setRemoteDescription(remoteDesc);
+            conn.setRemoteDescription(remoteDesc);
 
             const localDesc = await conn.createAnswer();
-            await conn.setLocalDescription(localDesc);
+            conn.setLocalDescription(localDesc);
 
             send({sdp: localDesc});
-
-            emitConnection(conn);
         }
     });
 

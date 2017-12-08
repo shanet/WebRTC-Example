@@ -25,7 +25,7 @@ function pageReady() {
     remoteVideo = document.getElementById('remoteVideo');
 
     serverConnection = new WebSocket('wss://' + window.location.hostname + ':8443');
-    serverConnection.onmessage = gotMessageFromServer;
+    serverConnection.addEventListener('message', gotMessageFromServer);
 
     var constraints = {
         video: true,
@@ -47,30 +47,30 @@ function getUserMediaSuccess(stream) {
 function start(isCaller) {
     peerConnection = new RTCPeerConnection(peerConnectionConfig);
 
-    peerConnection.onicecandidate = gotIceCandidate;
-    peerConnection.onaddstream = gotRemoteStream;
+    peerConnection.addEventListener('icecandidate', gotIceCandidate);
+    peerConnection.addEventListener('addstream', gotRemoteStream);
     peerConnection.addStream(localStream);
 
-    peerConnection.ondatachannel = function(dataChannel) {
+    peerConnection.addEventListener('datachannel', function(dataChannel) {
         dataChannel.channel.send('Hello there, I got your signal');
-    }
+    });
 
     dataChannel = peerConnection.createDataChannel("myLabel", dataChannelOptions);
-    dataChannel.onerror = function (error) {
+    dataChannel.addEventListener('error', function (error) {
       console.log("Data Channel Error:", error);
-    };
+    });
 
-    dataChannel.onmessage = function (event) {
+    dataChannel.addEventListener('message', function (event) {
       console.log("Got Data Channel Message:", event.data);
-    };
+    });
 
-    dataChannel.onopen = function (event) {
+    dataChannel.addEventListener('open', function (event) {
         console.log("Datachannel open", event);
-    };
+    });
 
-    dataChannel.onclose = function () {
+    dataChannel.addEventListener('close', function () {
       console.log("The Data Channel is Closed");
-    };
+    });
 
     if(isCaller) {
         peerConnection.createOffer().then(createdDescription).catch(errorHandler);

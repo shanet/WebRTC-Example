@@ -4,3 +4,8 @@ export const peerConnectionConfig = {
         {'urls': 'stun:stun.l.google.com:19302'},
     ],
 };
+
+export const dataChannelConfig = {
+  ordered: false, // do not guarantee order
+  maxRetransmitTime: 500, // in milliseconds
+};

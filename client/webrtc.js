@@ -1,4 +1,4 @@
-import { peerConnectionConfig } from './config.js';
+import { dataChannelConfig, peerConnectionConfig } from './config.js';
 
 var localVideo;
 var localStream;
@@ -7,11 +7,6 @@ var peerConnection;
 var uuid;
 var serverConnection;
 var dataChannel;
-
-var dataChannelOptions = {
-  ordered: false, // do not guarantee order
-  maxRetransmitTime: 500, // in milliseconds
-};
 
 function pageReady() {
     document.querySelector("button#start")
@@ -53,7 +48,7 @@ function start(isCaller) {
         dataChannel.channel.send('Hello there, I got your signal');
     });
 
-    dataChannel = peerConnection.createDataChannel("myLabel", dataChannelOptions);
+    dataChannel = peerConnection.createDataChannel("myLabel", dataChannelConfig);
     dataChannel.addEventListener('error', function (error) {
       console.log("Data Channel Error:", error);
     });

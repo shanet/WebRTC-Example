@@ -15,6 +15,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "node-static": "^0.7.10",
     "ws": "^3.3.2"
   },
   "devDependencies": {

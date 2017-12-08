@@ -17,7 +17,6 @@ function pageReady() {
     remoteVideo = document.getElementById('remoteVideo');
 
     serverConnection = createPeerExchange('wss://' + window.location.hostname + ':8443');
-    serverConnection.listen(gotMessageFromServer);
 
     setup();
 }
@@ -28,7 +27,7 @@ function getUserMediaSuccess(stream) {
 }
 
 function setup() {
-    peerConnection = createPeer(null, peerConnectionConfig);
+    peerConnection = createPeer(serverConnection, peerConnectionConfig);
 
     peerConnection.addEventListener('icecandidate', gotIceCandidate);
     peerConnection.addEventListener('addstream', gotRemoteStream);
@@ -73,19 +72,6 @@ function setup() {
 
 function extendOffer() {
     peerConnection.createOffer().then(createdDescription).catch(errorHandler);
-}
-
-function gotMessageFromServer(signal) {
-    if(signal.sdp) {
-        peerConnection.setRemoteDescription(new RTCSessionDescription(signal.sdp)).then(function() {
-            // Only create answers in response to offers
-            if(signal.sdp.type == 'offer') {
-                peerConnection.createAnswer().then(createdDescription).catch(errorHandler);
-            }
-        }).catch(errorHandler);
-    } else if(signal.ice) {
-        peerConnection.addIceCandidate(new RTCIceCandidate(signal.ice)).catch(errorHandler);
-    }
 }
 
 function gotIceCandidate(event) {

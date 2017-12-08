@@ -13,7 +13,7 @@ export function createPeerExchange(address) {
             return;
         }
 
-        listeners.forEach(callback => callback(data));
+        listeners.forEach(callback => callback(data, send));
     }
 
     function listen(callback) {

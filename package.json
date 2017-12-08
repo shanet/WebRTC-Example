@@ -4,6 +4,7 @@
   "description": "A generic WebRTC library and peering server.",
   "main": "index.js",
   "scripts": {
+    "start": "node server/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

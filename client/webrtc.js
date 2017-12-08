@@ -1,3 +1,5 @@
+import { peerConnectionConfig } from './config.js';
+
 var localVideo;
 var localStream;
 var remoteVideo;
@@ -9,13 +11,6 @@ var dataChannel;
 var dataChannelOptions = {
   ordered: false, // do not guarantee order
   maxRetransmitTime: 500, // in milliseconds
-};
-
-var peerConnectionConfig = {
-    'iceServers': [
-        {'urls': 'stun:stun.services.mozilla.com'},
-        {'urls': 'stun:stun.l.google.com:19302'},
-    ]
 };
 
 function pageReady() {

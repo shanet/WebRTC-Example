@@ -3,7 +3,6 @@ import { createPeerExchange } from './peer-exchange.js';
 import { createPeer } from './peer.js';
 
 var localVideo;
-var localStream;
 var remoteVideo;
 var peerConnection;
 var serverConnection;

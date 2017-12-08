@@ -71,15 +71,11 @@ function setup() {
     });
 }
 
-function start(isCaller) {
-    if(isCaller) {
-        peerConnection.createOffer().then(createdDescription).catch(errorHandler);
-    }
+function start() {
+    peerConnection.createOffer().then(createdDescription).catch(errorHandler);
 }
 
 function gotMessageFromServer(signal) {
-    if(!peerConnection) start(false);
-
     if(signal.sdp) {
         peerConnection.setRemoteDescription(new RTCSessionDescription(signal.sdp)).then(function() {
             // Only create answers in response to offers

@@ -19,16 +19,7 @@ function pageReady() {
     serverConnection = createPeerExchange('wss://' + window.location.hostname + ':8443');
     serverConnection.listen(gotMessageFromServer);
 
-    var constraints = {
-        video: true,
-        audio: true,
-    };
-
-    if(navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices.getUserMedia(constraints).then(getUserMediaSuccess).catch(errorHandler);
-    } else {
-        alert('Your browser does not support getUserMedia API');
-    }
+    setup();
 }
 
 function getUserMediaSuccess(stream) {
@@ -41,7 +32,22 @@ function setup() {
 
     peerConnection.addEventListener('icecandidate', gotIceCandidate);
     peerConnection.addEventListener('addstream', gotRemoteStream);
-    peerConnection.addStream(localStream);
+
+    if(navigator.mediaDevices.getUserMedia) {
+        var constraints = {
+            video: true,
+            audio: true,
+        };
+
+        navigator.mediaDevices.getUserMedia(constraints)
+        .then(getUserMediaSuccess)
+        .then(() => {
+            peerConnection.addStream(localStream);
+        })
+        .catch(errorHandler);
+    } else {
+        alert('Your browser does not support getUserMedia API');
+    }
 
     peerConnection.addEventListener('datachannel', function(dataChannel) {
         dataChannel.channel.send('Hello there, I got your signal');
@@ -66,8 +72,6 @@ function setup() {
 }
 
 function start(isCaller) {
-    setup();
-
     if(isCaller) {
         peerConnection.createOffer().then(createdDescription).catch(errorHandler);
     }

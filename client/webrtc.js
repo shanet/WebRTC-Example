@@ -32,8 +32,6 @@ async function setup() {
         peerConnection.addStream(stream);
         extendOffer();
     });
-
-    //setTimeout(extendOffer, 50);
 }
 
 function extendOffer() {

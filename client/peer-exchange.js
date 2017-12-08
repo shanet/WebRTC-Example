@@ -1,6 +1,6 @@
 import { createUUID } from './random.js';
 
-export function createPeerExchange(address) {
+export async function createPeerExchange(address) {
     const uuid = createUUID();
 
     const server = new WebSocket(address);
@@ -26,8 +26,12 @@ export function createPeerExchange(address) {
 
     server.addEventListener('message', onMessage);
 
-    return {
-        listen,
-        send,
-    };
+    return new Promise(resolve => {
+        server.addEventListener('open', () => {
+            resolve({
+                listen,
+                send,
+            });
+        });
+    });
 }

@@ -5,16 +5,16 @@ import { createPeer } from './peer.js';
 var peerConnection;
 var serverConnection;
 
-function pageReady() {
+async function pageReady() {
     document.querySelector("button#start")
     .addEventListener("click", extendOffer);
 
-    serverConnection = createPeerExchange('wss://' + window.location.hostname + ':8443');
+    serverConnection = await createPeerExchange('wss://' + window.location.hostname + ':8443');
 
     setup();
 }
 
-function setup() {
+async function setup() {
     peerConnection = createPeer(serverConnection, peerConnectionConfig);
 
     peerConnection.addEventListener('addstream', stream => {
@@ -30,10 +30,14 @@ function setup() {
     .then(stream => {
         document.getElementById('localVideo').srcObject = stream;
         peerConnection.addStream(stream);
+        extendOffer();
     });
+
+    //setTimeout(extendOffer, 50);
 }
 
 function extendOffer() {
+    console.log('Extending offer');
     peerConnection.createOffer().then(createdDescription).catch(errorHandler);
 }
 

@@ -1,6 +1,6 @@
 import { dataChannelConfig, peerConnectionConfig } from './config.js';
 import { createPeerExchange } from './peer-exchange.js';
-import { createPeer, createHost, createGuest} from './peer.js';
+import { createHost, createGuest} from './peer.js';
 
 var peerConnection;
 var serverConnection;

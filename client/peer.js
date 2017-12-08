@@ -1,19 +1,7 @@
 import { createUUID } from './random.js';
 
 function errorHandler(error) {
-    console.log(error);
-}
-
-function filter(uuid) {
-    return function filterSignal(callback) {
-        return function(signal) {
-            if (signal.uuid === uuid) {
-                console.log(`${uuid} ours, filtering`);
-                return;
-            }
-            callback(signal);
-        }
-    }
+    console.error(error);
 }
 
 export function createHost(peerExchange, peerConnectionConfig) {
@@ -35,10 +23,10 @@ export function createHost(peerExchange, peerConnectionConfig) {
             emitConnection(conn);
 
             const remoteDesc = new RTCSessionDescription(signal.sdp);
-            conn.setRemoteDescription(remoteDesc);
+            conn.setRemoteDescription(remoteDesc).catch(errorHandler);
 
             const localDesc = await conn.createAnswer();
-            conn.setLocalDescription(localDesc);
+            conn.setLocalDescription(localDesc).catch(errorHandler);
 
             send({sdp: localDesc});
         }
@@ -52,17 +40,17 @@ export function createHost(peerExchange, peerConnectionConfig) {
 export function createGuest(peerExchange, peerConnectionConfig) {
     const {conn, onSignal, send} = createConn(peerExchange, peerConnectionConfig);
 
-    onSignal(async signal => {
+    onSignal(signal => {
         console.log("Guest signal", signal);
         if (signal.sdp && signal.sdp.type === "answer") {
             const remoteDesc = new RTCSessionDescription(signal.sdp);
-            await conn.setRemoteDescription(remoteDesc);
+            conn.setRemoteDescription(remoteDesc).catch(errorHandler);
         }
     });
 
     async function connect() {
         const localDesc = await conn.createOffer();
-        await conn.setLocalDescription(localDesc);
+        conn.setLocalDescription(localDesc).catch(errorHandler);
         send({sdp: localDesc});
     }
 
@@ -111,41 +99,5 @@ export function createConn(peerExchange, peerConnectionConfig) {
         conn,
         onSignal,
         send,
-    };
-}
-
-export function createPeer(peerExchange, peerConnectionConfig) {
-    const conn = new RTCPeerConnection(peerConnectionConfig);
-
-    conn.addEventListener('icecandidate', event => {
-        if(event.candidate != null) {
-            peerExchange.send({'ice': event.candidate});
-        }
-    });
-
-    peerExchange.listen(createPeerExchangeMessageHandler(conn));
-
-    return conn;
-}
-
-function createPeerExchangeMessageHandler(conn) {
-    return function gotMessageFromServer(signal, send) {
-        if(signal.sdp) {
-            console.log("SDP", signal.sdp.type);
-            conn.setRemoteDescription(new RTCSessionDescription(signal.sdp))
-            .then(() => {
-                // Only create answers in response to offers
-                if(signal.sdp.type == 'offer') {
-                    console.log("Creating answer", signal);
-                    return conn.createAnswer()
-                    .then(desc => {
-                        conn.setLocalDescription(desc);
-                        send({'sdp': desc})
-                    });
-                }
-            }).catch(errorHandler);
-        } else if(signal.ice) {
-            conn.addIceCandidate(new RTCIceCandidate(signal.ice)).catch(errorHandler);
-        }
     };
 }

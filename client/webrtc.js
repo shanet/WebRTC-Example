@@ -1,7 +1,9 @@
 var localVideo;
+var localStream;
 var remoteVideo;
 var peerConnection;
 var uuid;
+var serverConnection;
 
 var peerConnectionConfig = {
     'iceServers': [
@@ -11,7 +13,7 @@ var peerConnectionConfig = {
 };
 
 function pageReady() {
-    uuid = uuid();
+    uuid = createUUID();
 
     localVideo = document.getElementById('localVideo');
     remoteVideo = document.getElementById('remoteVideo');
@@ -92,7 +94,7 @@ function errorHandler(error) {
 
 // Taken from http://stackoverflow.com/a/105074/515584
 // Strictly speaking, it's not a real UUID, but it gets the job done here
-function uuid() {
+function createUUID() {
   function s4() {
     return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
   }

@@ -7,7 +7,6 @@ var localStream;
 var remoteVideo;
 var peerConnection;
 var serverConnection;
-var dataChannel;
 
 function pageReady() {
     document.querySelector("button#start")
@@ -41,7 +40,7 @@ function setup() {
         dataChannel.channel.send('Hello there, I got your signal');
     });
 
-    dataChannel = peerConnection.createDataChannel("myLabel", dataChannelConfig);
+    const dataChannel = peerConnection.createDataChannel("myLabel", dataChannelConfig);
     dataChannel.addEventListener('error', function (error) {
       console.log("Data Channel Error:", error);
     });

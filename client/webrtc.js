@@ -28,7 +28,7 @@ function getUserMediaSuccess(stream) {
 }
 
 function setup() {
-    peerConnection = createPeer(peerConnectionConfig);
+    peerConnection = createPeer(null, peerConnectionConfig);
 
     peerConnection.addEventListener('icecandidate', gotIceCandidate);
     peerConnection.addEventListener('addstream', gotRemoteStream);

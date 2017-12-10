@@ -1,0 +1,19 @@
+{
+  "name": "@snex/peer-exchange",
+  "version": "0.1.0",
+  "description": "Peer Exchange server for WebRTC",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "jest"
+  },
+  "keywords": [],
+  "author": "Pontus Alexander <pontus.alexander@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "ws": "^3.3.2"
+  },
+  "devDependencies": {
+    "jest": "^21.2.1"
+  }
+}

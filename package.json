@@ -2,9 +2,7 @@
   "name": "snex-peering",
   "version": "0.1.0",
   "description": "A generic WebRTC library and peering server.",
-  "main": "index.js",
   "scripts": {
-    "start": "node server/server.js",
     "test": "jest"
   },
   "repository": {

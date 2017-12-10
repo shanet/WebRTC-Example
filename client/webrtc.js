@@ -12,7 +12,7 @@ async function pageReady() {
     document.querySelector("button#connect")
     .addEventListener("click", connect);
 
-    serverConnection = await createPeerExchange('wss://' + window.location.hostname + ':8443');
+    serverConnection = await createPeerExchange('ws://' + window.location.hostname + ':8080');
 }
 
 function host() {

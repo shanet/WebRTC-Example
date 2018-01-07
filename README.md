@@ -14,8 +14,8 @@ Note: This repo is kept updated. The general ideas are there, but the above blog
 The signaling server uses Node.js and `ws` and can be started as such:
 
 ```
-$ npm install ws
-$ node server/server.js
+$ npm install
+$ npm start
 ```
 
 With the server running, open a recent version of Firefox or Chrome and visit `https://localhost:8443`. Note the HTTPS! There is no redirect from HTTP to HTTPS!

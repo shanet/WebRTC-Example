@@ -18,7 +18,7 @@ $ npm install
 $ npm start
 ```
 
-With the server running, open a recent version of Firefox or Chrome and visit `https://localhost:8443`. Note the HTTPS! There is no redirect from HTTP to HTTPS!
+With the server running, open a recent version of Firefox or Chrome and visit `https://localhost:8443`. Note the HTTPS! There is no redirect from HTTP to HTTPS.
 
 ## TLS
 

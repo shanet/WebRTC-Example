@@ -5,7 +5,7 @@ const https = require('https');
 const WebSocket = require('ws');
 const WebSocketServer = WebSocket.Server;
 
-// Yes, SSL is required
+// Yes, TLS is required
 const serverConfig = {
     key: fs.readFileSync('key.pem'),
     cert: fs.readFileSync('cert.pem'),
@@ -14,7 +14,7 @@ const serverConfig = {
 // ----------------------------------------------------------------------------------------
 
 // Create a server for the client html page
-var handleRequest = function(request, response) {
+const handleRequest = function(request, response) {
     // Render the single client html file for any request the HTTP server receives
     console.log('request received: ' + request.url);
 
@@ -27,13 +27,13 @@ var handleRequest = function(request, response) {
     }
 };
 
-var httpsServer = https.createServer(serverConfig, handleRequest);
+const httpsServer = https.createServer(serverConfig, handleRequest);
 httpsServer.listen(HTTPS_PORT, '0.0.0.0');
 
 // ----------------------------------------------------------------------------------------
 
 // Create a server for handling websocket calls
-var wss = new WebSocketServer({server: httpsServer});
+const wss = new WebSocketServer({server: httpsServer});
 
 wss.on('connection', function(ws) {
     ws.on('message', function(message) {
@@ -51,4 +51,7 @@ wss.broadcast = function(data) {
     });
 };
 
-console.log('Server running. Visit https://localhost:' + HTTPS_PORT + ' in Firefox/Chrome (note the HTTPS; there is no HTTP -> HTTPS redirect!)');
+console.log('Server running. Visit https://localhost:' + HTTPS_PORT + ' in Firefox/Chrome.\n\n\
+  * Note the HTTPS; there is no HTTP -> HTTPS redirect.\n\
+  * You\'ll also need to accept the invalid TLS certificate.\n'
+);

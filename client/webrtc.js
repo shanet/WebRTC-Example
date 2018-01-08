@@ -41,7 +41,7 @@ function getUserMediaSuccess(stream) {
 function start(isCaller) {
   peerConnection = new RTCPeerConnection(peerConnectionConfig);
   peerConnection.onicecandidate = gotIceCandidate;
-  peerConnection.onaddstream = gotRemoteStream;
+  peerConnection.ontrack = gotRemoteStream;
   peerConnection.addStream(localStream);
 
   if(isCaller) {
@@ -85,7 +85,7 @@ function createdDescription(description) {
 
 function gotRemoteStream(event) {
   console.log('got remote stream');
-  remoteVideo.srcObject = event.stream;
+  remoteVideo.srcObject = event.streams[0];
 }
 
 function errorHandler(error) {

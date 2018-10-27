@@ -11,7 +11,9 @@
     "type": "git",
     "url": "git+https://github.com/shanet/WebRTC-Example.git"
   },
-  "keywords": ["webrtc"],
+  "keywords": [
+    "webrtc"
+  ],
   "author": "shane tully",
   "license": "MIT",
   "bugs": {
@@ -19,6 +21,7 @@
   },
   "homepage": "https://github.com/shanet/WebRTC-Example#readme",
   "dependencies": {
+    "devcert": "^1.0.0",
     "ws": "^3.3.2"
   }
 }

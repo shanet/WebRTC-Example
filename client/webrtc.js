@@ -51,7 +51,7 @@ function start(isCaller) {
 
 function gotMessageFromServer(message) {
   if(!peerConnection) start(false);
-  let signal = JSON.parse(message.data);
+  const signal = JSON.parse(message.data);
 
   // Ignore messages from ourself
   if(signal.uuid == uuid) return;

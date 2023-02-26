@@ -1,11 +1,11 @@
-var localVideo;
-var localStream;
-var remoteVideo;
-var peerConnection;
-var uuid;
-var serverConnection;
+let localVideo;
+let localStream;
+let remoteVideo;
+let peerConnection;
+let uuid;
+let serverConnection;
 
-var peerConnectionConfig = {
+const peerConnectionConfig = {
   'iceServers': [
     {'urls': 'stun:stun.stunprotocol.org:3478'},
     {'urls': 'stun:stun.l.google.com:19302'},
@@ -21,7 +21,7 @@ function pageReady() {
   serverConnection = new WebSocket('wss://' + window.location.hostname + ':8443');
   serverConnection.onmessage = gotMessageFromServer;
 
-  var constraints = {
+  const constraints = {
     video: true,
     audio: true,
   };
@@ -51,8 +51,7 @@ function start(isCaller) {
 
 function gotMessageFromServer(message) {
   if(!peerConnection) start(false);
-
-  var signal = JSON.parse(message.data);
+  let signal = JSON.parse(message.data);
 
   // Ignore messages from ourself
   if(signal.uuid == uuid) return;

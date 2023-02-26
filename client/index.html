@@ -6,15 +6,78 @@
   </head>
 
   <body>
-    <video id="localVideo" autoplay muted style="width:40%;"></video>
-    <video id="remoteVideo" autoplay style="width:40%;"></video>
-
-    <br />
-
-    <input type="button" id="start" onclick="start(true)" value="Start Video"></input>
-
+    <div class="video-wrapper">
+      <video id="localVideo" class="video rnd" autoplay muted></video>
+      <video id="remoteVideo" class="video rnd" autoplay></video>
+      <div class="label">You</div>
+      <div class="label">Remote</div>
+    </div>
+    <div class="btn-wrap">
+      <input type="button" id="start" onclick="start(true)" value="Connect"></input>
+    </div>
+    <div id="statusWrap" class="status-wrap" style="visibility: hidden">
+      Status: <span id="status">Page Loaded</span>
+    </div>
+    <br>
+    <div id="uuid">...</div>
     <script type="text/javascript">
         pageReady();
     </script>
+  <style>
+    :root{
+      --accent: rgb(25,55,155);
+      --accent2: rgb(35,75,200);
+    }
+    html{
+      background: rgb(45,45,45);
+      color: white;
+      font-family: Tahoma, Verdana, Segoe, sans-serif;
+    }
+    body{
+      max-width: 1024px;
+      margin: 0 auto;
+    }
+    input[type="button"] {
+      padding: 1rem;
+      background: var(--accent);
+      color: white;
+      border: none;
+    }
+    input[type="button"]:hover{
+      background: var(--accent2);
+    }
+    .rnd{
+      border-radius:0.5rem;
+    }
+    .video-wrapper{
+      background: rgb(22,22,22);
+      padding: 1rem;
+      padding-top:2rem;
+      text-align:center;
+      margin-top:2rem;
+    }
+    .video{
+      width:480px;
+      height:360px;
+      background: var(--accent2);
+    }
+    .label{
+      display: inline-block;
+      width:480px;
+      height:2rem;
+    }
+    .btn-wrap{
+      text-align:right;
+      background: rgb(33,33,33);
+    }
+    .status-wrap{
+      background: rgb(22,22,22);
+      padding: 0.5rem;
+      height:4.5rem;
+      resize: vertical;
+      overflow-y: scroll;
+    }
+    
+  </style>
   </body>
 </html>

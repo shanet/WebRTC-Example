@@ -1,11 +1,11 @@
-
 let _s = {
   localVideo: undefined,
   localStream: undefined,
   remoteVideo: undefined,
   peerConnection: undefined,
   uuid: undefined,
-  serverConnection: undefined
+  serverConnection: undefined,
+  statusLog: ''
 };
 
 const peerConnectionConfig = {
@@ -16,7 +16,10 @@ const peerConnectionConfig = {
 };
 
 function pageReady() {
+  showStatus(true);
+  setStatus('Page Ready');
   _s.uuid = createUUID();
+  document.getElementById('uuid').innerHTML = 'UUID: '+_s.uuid;
 
   _s.localVideo = document.getElementById('localVideo');
   _s.remoteVideo = document.getElementById('remoteVideo');
@@ -36,12 +39,22 @@ function pageReady() {
   }
 }
 
+function showStatus(show=true){
+  document.getElementById('statusWrap').style.visibility = show ? "visible" : "hidden";
+}
+
+function setStatus(msg){
+  _s.statusLog = msg + '<br><br>' + _s.statusLog; 
+  document.getElementById('status').innerHTML = _s.statusLog;
+}
+
 function getUserMediaSuccess(stream) {
   _s.localStream = stream;
   _s.localVideo.srcObject = stream;
 }
 
 function start(isCaller) {
+  setStatus('Starting');
   _s.peerConnection = new RTCPeerConnection(peerConnectionConfig);
   _s.peerConnection.onicecandidate = gotIceCandidate;
   _s.peerConnection.ontrack = gotRemoteStream;
@@ -53,9 +66,10 @@ function start(isCaller) {
 }
 
 function gotMessageFromServer(message) {
+  setStatus('Got Message From Server');
   if(!_s.peerConnection) start(false);
   const signal = JSON.parse(message.data);
-
+  setStatus('Signal: '+ JSON.stringify(signal, null, 2));
   // Ignore messages from ourself
   if(signal.uuid == _s.uuid) return;
 
@@ -72,12 +86,16 @@ function gotMessageFromServer(message) {
 }
 
 function gotIceCandidate(event) {
+  setStatus('Got Ice Candidate'+JSON.stringify(event, null, 2));
   if(event.candidate != null) {
+    setStatus('ICE Event: '+JSON.stringify(event.candidate, null, 2));
     _s.serverConnection.send(JSON.stringify({'ice': event.candidate, 'uuid': _s.uuid}));
   }
 }
 
 function createdDescription(description) {
+  setStatus('Got Description');
+  setStatus('Description: '+JSON.stringify(description, null, 2));
   console.log('got description');
 
   _s.peerConnection.setLocalDescription(description).then(function() {
@@ -86,6 +104,7 @@ function createdDescription(description) {
 }
 
 function gotRemoteStream(event) {
+  setStatus('Got Remote Server');
   console.log('got remote stream');
   _s.remoteVideo.srcObject = event.streams[0];
 }

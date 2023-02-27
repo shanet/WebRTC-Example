@@ -82,21 +82,21 @@ function addStatus(msg){
 function sendMsg(){
   let content = _dom.chatInput.value;
   const msg = {
-    uuid: _s.uuid,
+    sender: 'Peer',
     content: content
   };
   _s.dataChannel.send(JSON.stringify(msg, null, 2));
   // write local
   content = content.replace(_s.uuid, 'You');
-  writeMsg({uuid:'You', content});
+  writeMsg({sender:'You', content});
   _dom.chatInput.value = '';
 }
 
 function writeMsg(msg){
   let content = msg.content;
-  const origin = msg.uuid || 'System >> ';
+  const origin = msg.sender || 'System';
   content = content.replace(/(?:\r\n|\r|\n)/g, '<br>');
-  const out = '<br>' + origin + ': ' + content + '<br>';
+  const out = '<br><strong>' + origin + '</strong>: ' + content + '<br>';
   _dom.msgArea.innerHTML += out;
   _dom.msgArea.scrollTop = msgArea.scrollHeight;
 }
@@ -128,7 +128,7 @@ function setupDataChannel(){
   _s.dataChannel.onopen = () => {
     // The data channel is now open
     // You can now send data
-    const msg = {uuid: _s.uuid, content: 'CONNECTED!'};
+    const msg = {sender: _s.uuid, content: 'Connected!'};
     _s.dataChannel.send(JSON.stringify(msg, null, 2));
     showChat(true);
   }

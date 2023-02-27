@@ -13,6 +13,7 @@
       <div class="label">Remote</div>
     </div>
     <div class="btn-wrap">
+      <input type="button" id="dbg" onclick="showStatus(true)" value="DBG"></input>
       <input type="button" id="start" onclick="start(true)" value="Connect"></input>
     </div>
       <div id="chatWrap" class="chat-wrap" style="visibility:hidden">
@@ -20,7 +21,7 @@
 	  MESSAG AREA<br>
 	</div>
 	<div class="chat-input">
-	  <input type="text" id="chatInput">
+	  <input type="text" id="chatInput" placeholder="Write a message...">
 	  <br><br>
 	  <input type="button" id="send" onclick="sendMsg()" value="send"></input>
 	</div>
@@ -103,6 +104,8 @@
     .msg-area{
       background: rgb(65,65,65);
       padding:1rem;
+      height: 360px;
+      overflow-y: scroll;
     }
     .chat-input{
     	text-align:right;

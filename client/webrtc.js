@@ -71,7 +71,9 @@ function sendMsg(){
 
 function writeMsg(msg){
   //alert(msg);
-  document.getElementById('msgArea').innerHTML += msg + '<br>';
+  const msgArea = document.getElementById('msgArea');
+  msgArea.innerHTML += msg + '<br>';
+  msgArea.scrollTop = msgArea.scrollHeight;
 }
 
 function getUserMediaSuccess(stream) {

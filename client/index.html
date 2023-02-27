@@ -16,17 +16,18 @@
       <input type="button" id="dbg" onclick="showStatus(true)" value="DBG"></input>
       <input type="button" id="start" onclick="start(true)" value="Connect"></input>
     </div>
-      <div id="chatWrap" class="chat-wrap" style="visibility:hidden">
+      <div id="chatWrap" class="chat-wrap" style="display:none;">
 	<div id="msgArea" class="msg-area">
 	  MESSAG AREA<br>
 	</div>
 	<div class="chat-input">
-	  <input type="text" id="chatInput" placeholder="Write a message...">
+	  <!--<input type="text" id="chatInput" placeholder="Write a message...">-->
+	  <textarea id="chatInput" placeholder="Write a message..."></textarea>	
 	  <br><br>
 	  <input type="button" id="send" onclick="sendMsg()" value="send"></input>
 	</div>
       </div>
-    <div id="statusWrap" class="status-wrap" style="visibility: hidden">
+    <div id="statusWrap" class="status-wrap" style="display:none;">
       Status: <span id="status">Page Loaded</span>
     </div>
 
@@ -58,7 +59,8 @@
     input[type="button"]:hover{
       background: var(--accent2);
     }
-    input[type="text"]{
+    /*input[type="text"]{*/
+    textarea{
       background: rgb(45,45,45);
       color:white;
       font-size:1.1rem;
@@ -66,6 +68,7 @@
       border: 2px solid white;
       text-align:left;
       width:calc(100% - 1rem);
+      resize: vertical;
     }
     .rnd{
       border-radius:0.5rem;
@@ -103,9 +106,10 @@
     }
     .msg-area{
       background: rgb(65,65,65);
-      padding:1rem;
-      height: 360px;
+      padding: 1rem;
+      height: 4.5rem;
       overflow-y: scroll;
+      resize: vertical;
     }
     .chat-input{
     	text-align:right;

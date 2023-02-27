@@ -9,6 +9,8 @@ let _s = {
   statusLog: ''
 };
 
+let _dom = {};
+
 const peerConnectionConfig = {
   'iceServers': [
     {'urls': 'stun:stun.stunprotocol.org:3478'},
@@ -17,13 +19,14 @@ const peerConnectionConfig = {
 };
 
 function pageReady() {
+  setupDOM();
   showStatus(false);
   setStatus('Page Ready');
   _s.uuid = createUUID();
-  document.getElementById('uuid').innerHTML = 'UUID: '+_s.uuid;
+  _dom.uuid.innerHTML = 'UUID: '+_s.uuid;
 
-  _s.localVideo = document.getElementById('localVideo');
-  _s.remoteVideo = document.getElementById('remoteVideo');
+  _s.localVideo = _dom.localVideo;
+  _s.remoteVideo = _dom.remoteVideo;
 
   _s.serverConnection = new WebSocket('wss://' + window.location.hostname + ':8443');
   _s.serverConnection.onmessage = gotMessageFromServer;
@@ -33,45 +36,61 @@ function pageReady() {
     audio: true,
   };
 
-  document.getElementById('chatInput').addEventListener("keypress", function(event) {
-    if (event.key === "Enter") {
+  _dom.chatInput.addEventListener("keypress", function(event) {
+    if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
-      document.getElementById("send").click();
+      _dom.send.click();
     }
   }); 
 
 
   if(navigator.mediaDevices.getUserMedia) {
     navigator.mediaDevices.getUserMedia(constraints).then(getUserMediaSuccess).catch(errorHandler);
-  } else {
+  } 
+  else {
     alert('Your browser does not support getUserMedia API');
   }
 }
 
+function setupDOM(){
+  _dom = {
+    localVideo: document.getElementById('localVideo'),
+    remoteVideo: document.getElementById('remoteVideo'),
+    uuid: document.getElementById('uuid'),
+    chatInput: document.getElementById('chatInput'),
+    statusWrap: document.getElementById('statusWrap'),
+    status: document.getElementById('status'),
+    chatWrap: document.getElementById('chatWrap'),
+    msgArea: document.getElementById('msgArea'),
+    send: document.getElementById('send'),
+  };
+}
+
 function showStatus(show=true){
-  document.getElementById('statusWrap').style.visibility = show ? 'visible' : 'hidden';
+  _dom.statusWrap.style.display = show ? 'block' : 'none';
 }
 
 function showChat(show=true){
-  document.getElementById('chatWrap').style.visibility = show ? 'visible' : 'hidden';
+  _dom.chatWrap.style.display = show ? 'block' : 'node';
 }
 
 function setStatus(msg){
   _s.statusLog = msg + '<br><br>' + _s.statusLog; 
-  document.getElementById('status').innerHTML = _s.statusLog;
+  _dom.status.innerHTML = _s.statusLog;
 }
 
 function sendMsg(){
-  const content = _s.uuid + ': ' + document.getElementById('chatInput').value;
+  const content = _s.uuid + ': ' + _dom.chatInput.value;
   _s.dataChannel.send(content);
   // write local
   writeMsg(content.replace(_s.uuid, 'You'));
-  document.getElementById('chatInput').value = '';
+  _dom.chatInput.value = '';
 }
 
 function writeMsg(msg){
-  //alert(msg);
-  const msgArea = document.getElementById('msgArea');
+  const msgArea = _dom.msgArea;
+  msg = msg.replace(/(?:\r\n|\r|\n)/g, '<br>');
+  msg = '<br>' + msg;
   msgArea.innerHTML += msg + '<br>';
   msgArea.scrollTop = msgArea.scrollHeight;
 }
@@ -90,10 +109,9 @@ function setupDataChannel(){
       alert(e);
     }
     event.channel.onopen = (e) =>{
-      //alert('OPEN');
+      // The peer channel is open
     };
     event.channel.onclose = (e) =>{
-      //alert('CLOSE');
       sendMsg('>> Peer DisconnectedX!');
     }
   };
@@ -103,23 +121,20 @@ function setupDataChannel(){
   _s.dataChannel.onopen = () => {
     // The data channel is now open
     // You can now send data
-    // alert('DC OPEN');
     _s.dataChannel.send(_s.uuid + ': CONNECTED!');
     showChat(true);
   }
 
-  _s.dataChannel.onmessage = function(event){
+  _s.dataChannel.onmessage = (event) => {
     console.log(event);
     alert('GOT MSG');
   }
 
-  _s.dataChannel.onclose = function(event){
+  _s.dataChannel.onclose = (event) => {
     writeMsg('>> Peer Disconnected!');
   }
 
 }
-
-
 
 function start(isCaller) {
   setStatus('Starting');
@@ -137,21 +152,25 @@ function start(isCaller) {
 
 function gotMessageFromServer(message) {
   setStatus('Got Message From Server');
-  if(!_s.peerConnection) start(false);
+  if(!_s.peerConnection){start(false);}
   const signal = JSON.parse(message.data);
   setStatus('Signal: '+ JSON.stringify(signal, null, 2));
   // Ignore messages from ourself
-  if(signal.uuid == _s.uuid) return;
+  if(signal.uuid == _s.uuid){return;}
 
   if(signal.sdp) {
     _s.peerConnection.setRemoteDescription(new RTCSessionDescription(signal.sdp)).then(function() {
       // Only create answers in response to offers
       if(signal.sdp.type == 'offer') {
-        _s.peerConnection.createAnswer().then(createdDescription).catch(errorHandler);
+        _s.peerConnection.createAnswer().then(createdDescription)
+	  .catch(errorHandler);
       }
-    }).catch(errorHandler);
-  } else if(signal.ice) {
-    _s.peerConnection.addIceCandidate(new RTCIceCandidate(signal.ice)).catch(errorHandler);
+    })
+    .catch(errorHandler);
+  } 
+  else if(signal.ice) {
+    _s.peerConnection.addIceCandidate(new RTCIceCandidate(signal.ice))
+      .catch(errorHandler);
   }
 }
 
@@ -170,7 +189,8 @@ function createdDescription(description) {
 
   _s.peerConnection.setLocalDescription(description).then(function() {
     _s.serverConnection.send(JSON.stringify({'sdp': _s.peerConnection.localDescription, 'uuid': _s.uuid}));
-  }).catch(errorHandler);
+  })
+    .catch(errorHandler);
 }
 
 function gotRemoteStream(event) {

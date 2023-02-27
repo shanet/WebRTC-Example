@@ -21,7 +21,7 @@ const peerConnectionConfig = {
 function pageReady() {
   setupDOM();
   showStatus(false);
-  setStatus('Page Ready');
+  addStatus('Page Ready');
   _s.uuid = createUUID();
   _dom.uuid.innerHTML = 'UUID: '+_s.uuid;
 
@@ -74,25 +74,31 @@ function showChat(show=true){
   _dom.chatWrap.style.display = show ? 'block' : 'node';
 }
 
-function setStatus(msg){
+function addStatus(msg){
   _s.statusLog = msg + '<br><br>' + _s.statusLog; 
   _dom.status.innerHTML = _s.statusLog;
 }
 
 function sendMsg(){
-  const content = _s.uuid + ': ' + _dom.chatInput.value;
-  _s.dataChannel.send(content);
+  let content = _dom.chatInput.value;
+  const msg = {
+    uuid: _s.uuid,
+    content: content
+  };
+  _s.dataChannel.send(JSON.stringify(msg, null, 2));
   // write local
-  writeMsg(content.replace(_s.uuid, 'You'));
+  content = content.replace(_s.uuid, 'You');
+  writeMsg({uuid:'You', content});
   _dom.chatInput.value = '';
 }
 
 function writeMsg(msg){
-  const msgArea = _dom.msgArea;
-  msg = msg.replace(/(?:\r\n|\r|\n)/g, '<br>');
-  msg = '<br>' + msg;
-  msgArea.innerHTML += msg + '<br>';
-  msgArea.scrollTop = msgArea.scrollHeight;
+  let content = msg.content;
+  const origin = msg.uuid || 'System >> ';
+  content = content.replace(/(?:\r\n|\r|\n)/g, '<br>');
+  const out = '<br>' + origin + ': ' + content + '<br>';
+  _dom.msgArea.innerHTML += out;
+  _dom.msgArea.scrollTop = msgArea.scrollHeight;
 }
 
 function getUserMediaSuccess(stream) {
@@ -103,7 +109,8 @@ function getUserMediaSuccess(stream) {
 function setupDataChannel(){
   _s.peerConnection.ondatachannel = (event) => {
     event.channel.onmessage = (e) =>{
-      writeMsg(e.data); 
+      const data = JSON.parse(e.data);
+      writeMsg(data); 
     };
     event.channel.onerror = (e) =>{
       alert(e);
@@ -121,7 +128,8 @@ function setupDataChannel(){
   _s.dataChannel.onopen = () => {
     // The data channel is now open
     // You can now send data
-    _s.dataChannel.send(_s.uuid + ': CONNECTED!');
+    const msg = {uuid: _s.uuid, content: 'CONNECTED!'};
+    _s.dataChannel.send(JSON.stringify(msg, null, 2));
     showChat(true);
   }
 
@@ -131,13 +139,13 @@ function setupDataChannel(){
   }
 
   _s.dataChannel.onclose = (event) => {
-    writeMsg('>> Peer Disconnected!');
+    writeMsg({content: 'Peer Disconnected!'});
   }
 
 }
 
 function start(isCaller) {
-  setStatus('Starting');
+  addStatus('Starting');
   _s.peerConnection = new RTCPeerConnection(peerConnectionConfig);
   _s.peerConnection.onicecandidate = gotIceCandidate;
   _s.peerConnection.ontrack = gotRemoteStream;
@@ -147,14 +155,14 @@ function start(isCaller) {
     _s.peerConnection.createOffer().then(createdDescription).catch(errorHandler);
   }
   setupDataChannel();
-  writeMsg('>> Connected to peer!');
+  writeMsg({content: 'Connected to peer!'});
 }
 
 function gotMessageFromServer(message) {
-  setStatus('Got Message From Server');
+  addStatus('Got Message From Server');
   if(!_s.peerConnection){start(false);}
   const signal = JSON.parse(message.data);
-  setStatus('Signal: '+ JSON.stringify(signal, null, 2));
+  addStatus('Signal: '+ JSON.stringify(signal, null, 2));
   // Ignore messages from ourself
   if(signal.uuid == _s.uuid){return;}
 
@@ -175,16 +183,16 @@ function gotMessageFromServer(message) {
 }
 
 function gotIceCandidate(event) {
-  setStatus('Got Ice Candidate'+JSON.stringify(event, null, 2));
+  addStatus('Got Ice Candidate'+JSON.stringify(event, null, 2));
   if(event.candidate != null) {
-    setStatus('ICE Event: '+JSON.stringify(event.candidate, null, 2));
+    addStatus('ICE Event: '+JSON.stringify(event.candidate, null, 2));
     _s.serverConnection.send(JSON.stringify({'ice': event.candidate, 'uuid': _s.uuid}));
   }
 }
 
 function createdDescription(description) {
-  setStatus('Got Description');
-  setStatus('Description: '+JSON.stringify(description, null, 2));
+  addStatus('Got Description');
+  addStatus('Description: '+JSON.stringify(description, null, 2));
   console.log('got description');
 
   _s.peerConnection.setLocalDescription(description).then(function() {
@@ -194,7 +202,7 @@ function createdDescription(description) {
 }
 
 function gotRemoteStream(event) {
-  setStatus('Got Remote Server');
+  addStatus('Got Remote Server');
   console.log('got remote stream');
   _s.remoteVideo.srcObject = event.streams[0];
 }

@@ -15,9 +15,20 @@
     <div class="btn-wrap">
       <input type="button" id="start" onclick="start(true)" value="Connect"></input>
     </div>
+      <div id="chatWrap" class="chat-wrap" style="visibility:hidden">
+	<div id="msgArea" class="msg-area">
+	  MESSAG AREA<br>
+	</div>
+	<div class="chat-input">
+	  <input type="text" id="chatInput">
+	  <br><br>
+	  <input type="button" id="send" onclick="sendMsg()" value="send"></input>
+	</div>
+      </div>
     <div id="statusWrap" class="status-wrap" style="visibility: hidden">
       Status: <span id="status">Page Loaded</span>
     </div>
+
     <br>
     <div id="uuid">...</div>
     <script type="text/javascript">
@@ -46,6 +57,15 @@
     input[type="button"]:hover{
       background: var(--accent2);
     }
+    input[type="text"]{
+      background: rgb(45,45,45);
+      color:white;
+      font-size:1.1rem;
+      padding:0.5rem;
+      border: 2px solid white;
+      text-align:left;
+      width:calc(100% - 1rem);
+    }
     .rnd{
       border-radius:0.5rem;
     }
@@ -71,11 +91,21 @@
       background: rgb(33,33,33);
     }
     .status-wrap{
-      background: rgb(22,22,22);
+      background: rgb(22,55,22);
       padding: 0.5rem;
       height:4.5rem;
       resize: vertical;
       overflow-y: scroll;
+    }
+    .chat-wrap{
+      background: rgb(33,33,33);
+    }
+    .msg-area{
+      background: rgb(65,65,65);
+      padding:1rem;
+    }
+    .chat-input{
+    	text-align:right;
     }
     
   </style>

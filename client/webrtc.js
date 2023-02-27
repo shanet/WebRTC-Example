@@ -3,6 +3,7 @@ let _s = {
   localStream: undefined,
   remoteVideo: undefined,
   peerConnection: undefined,
+  dataChannel: undefined,
   uuid: undefined,
   serverConnection: undefined,
   statusLog: ''
@@ -16,7 +17,7 @@ const peerConnectionConfig = {
 };
 
 function pageReady() {
-  showStatus(true);
+  showStatus(false);
   setStatus('Page Ready');
   _s.uuid = createUUID();
   document.getElementById('uuid').innerHTML = 'UUID: '+_s.uuid;
@@ -32,6 +33,14 @@ function pageReady() {
     audio: true,
   };
 
+  document.getElementById('chatInput').addEventListener("keypress", function(event) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      document.getElementById("send").click();
+    }
+  }); 
+
+
   if(navigator.mediaDevices.getUserMedia) {
     navigator.mediaDevices.getUserMedia(constraints).then(getUserMediaSuccess).catch(errorHandler);
   } else {
@@ -40,7 +49,11 @@ function pageReady() {
 }
 
 function showStatus(show=true){
-  document.getElementById('statusWrap').style.visibility = show ? "visible" : "hidden";
+  document.getElementById('statusWrap').style.visibility = show ? 'visible' : 'hidden';
+}
+
+function showChat(show=true){
+  document.getElementById('chatWrap').style.visibility = show ? 'visible' : 'hidden';
 }
 
 function setStatus(msg){
@@ -48,10 +61,63 @@ function setStatus(msg){
   document.getElementById('status').innerHTML = _s.statusLog;
 }
 
+function sendMsg(){
+  const content = _s.uuid + ': ' + document.getElementById('chatInput').value;
+  _s.dataChannel.send(content);
+  // write local
+  writeMsg(content.replace(_s.uuid, 'You'));
+  document.getElementById('chatInput').value = '';
+}
+
+function writeMsg(msg){
+  //alert(msg);
+  document.getElementById('msgArea').innerHTML += msg + '<br>';
+}
+
 function getUserMediaSuccess(stream) {
   _s.localStream = stream;
   _s.localVideo.srcObject = stream;
 }
+
+function setupDataChannel(){
+  _s.peerConnection.ondatachannel = (event) => {
+    event.channel.onmessage = (e) =>{
+      writeMsg(e.data); 
+    };
+    event.channel.onerror = (e) =>{
+      alert(e);
+    }
+    event.channel.onopen = (e) =>{
+      //alert('OPEN');
+    };
+    event.channel.onclose = (e) =>{
+      //alert('CLOSE');
+      sendMsg('>> Peer DisconnectedX!');
+    }
+  };
+
+
+  _s.dataChannel = _s.peerConnection.createDataChannel('dataChannel');
+  _s.dataChannel.onopen = () => {
+    // The data channel is now open
+    // You can now send data
+    // alert('DC OPEN');
+    _s.dataChannel.send(_s.uuid + ': CONNECTED!');
+    showChat(true);
+  }
+
+  _s.dataChannel.onmessage = function(event){
+    console.log(event);
+    alert('GOT MSG');
+  }
+
+  _s.dataChannel.onclose = function(event){
+    writeMsg('>> Peer Disconnected!');
+  }
+
+}
+
+
 
 function start(isCaller) {
   setStatus('Starting');
@@ -63,6 +129,8 @@ function start(isCaller) {
   if(isCaller) {
     _s.peerConnection.createOffer().then(createdDescription).catch(errorHandler);
   }
+  setupDataChannel();
+  writeMsg('>> Connected to peer!');
 }
 
 function gotMessageFromServer(message) {

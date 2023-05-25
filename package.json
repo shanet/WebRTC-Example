@@ -17,8 +17,8 @@
   "bugs": {
     "url": "https://github.com/shanet/WebRTC-Example/issues"
   },
-  "homepage": "https://github.com/shanet/WebRTC-Example#readme",
+  "homepage": "https://github.com/shanet/WebRTC-Example",
   "dependencies": {
-    "ws": "^3.3.2"
+    "ws": "^8.13.0"
   }
 }

@@ -1,8 +1,6 @@
 WebRTC Example
 ==============
 
-#### shane tully (shanetully.com)
-
 An 'as simple as it gets' WebRTC example.
 
 See [https://shanetully.com/2014/09/a-dead-simple-webrtc-example/](https://shanetully.com/2014/09/a-dead-simple-webrtc-example/) for a detailed walkthrough of the code.
@@ -18,18 +16,17 @@ $ npm install
 $ npm start
 ```
 
-With the server running, open a recent version of Firefox, Chrome, or Safari and visit `https://localhost:8443`.
+With the server running, open Firefox/Chrome/Safari and visit `https://localhost:8443`.
+
+Please note the following:
 
 * Note the HTTPS! There is no redirect from HTTP to HTTPS.
+* You\'ll need to accept the invalid TLS certificate as it is self-signed and WebRTC must be run over TLS.
 * Some browsers or OSs may not allow the webcam to be used by multiple pages at once. You may need to use two different browsers or machines.
-
-## TLS
-
-Recent versions of Chrome require secure websockets for WebRTC. Thus, this example utilizes HTTPS. Included is a self-signed certificate that must be accepted in the browser for the example to work.
 
 ## Problems?
 
-WebRTC is a rapidly evolving beast. Being an example that I don't check often, I rely on users for reports if something breaks. Issues and pull requests are greatly appreciated.
+This is a short example that I don't check often. As such, I rely on users for reports if something breaks. Issues and pull requests are greatly appreciated.
 
 ## License
 

@@ -1,11 +1,11 @@
-var localVideo;
-var localStream;
-var remoteVideo;
-var peerConnection;
-var uuid;
-var serverConnection;
+let localStream;
+let localVideo;
+let peerConnection;
+let remoteVideo;
+let serverConnection;
+let uuid;
 
-var peerConnectionConfig = {
+const peerConnectionConfig = {
   'iceServers': [
     {'urls': 'stun:stun.stunprotocol.org:3478'},
     {'urls': 'stun:stun.l.google.com:19302'},
@@ -18,10 +18,10 @@ function pageReady() {
   localVideo = document.getElementById('localVideo');
   remoteVideo = document.getElementById('remoteVideo');
 
-  serverConnection = new WebSocket('wss://' + window.location.hostname + ':8443');
+  serverConnection = new WebSocket(`wss://${window.location.hostname}:8443`);
   serverConnection.onmessage = gotMessageFromServer;
 
-  var constraints = {
+  const constraints = {
     video: true,
     audio: true,
   };
@@ -52,13 +52,13 @@ function start(isCaller) {
 function gotMessageFromServer(message) {
   if(!peerConnection) start(false);
 
-  var signal = JSON.parse(message.data);
+  const signal = JSON.parse(message.data);
 
   // Ignore messages from ourself
   if(signal.uuid == uuid) return;
 
   if(signal.sdp) {
-    peerConnection.setRemoteDescription(new RTCSessionDescription(signal.sdp)).then(function() {
+    peerConnection.setRemoteDescription(new RTCSessionDescription(signal.sdp)).then(() => {
       // Only create answers in response to offers
       if(signal.sdp.type == 'offer') {
         peerConnection.createAnswer().then(createdDescription).catch(errorHandler);
@@ -78,7 +78,7 @@ function gotIceCandidate(event) {
 function createdDescription(description) {
   console.log('got description');
 
-  peerConnection.setLocalDescription(description).then(function() {
+  peerConnection.setLocalDescription(description).then(() => {
     serverConnection.send(JSON.stringify({'sdp': peerConnection.localDescription, 'uuid': uuid}));
   }).catch(errorHandler);
 }
@@ -99,5 +99,5 @@ function createUUID() {
     return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
   }
 
-  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+  return `${s4() + s4()}-${s4()}-${s4()}-${s4()}-${s4() + s4() + s4()}`;
 }

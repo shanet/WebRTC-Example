@@ -12,7 +12,7 @@ const peerConnectionConfig = {
   ]
 };
 
-function pageReady() {
+async function pageReady() {
   uuid = createUUID();
 
   localVideo = document.getElementById('localVideo');
@@ -26,23 +26,29 @@ function pageReady() {
     audio: true,
   };
 
-  if(navigator.mediaDevices.getUserMedia) {
-    navigator.mediaDevices.getUserMedia(constraints).then(getUserMediaSuccess).catch(errorHandler);
-  } else {
+  if(!navigator.mediaDevices.getUserMedia) {
     alert('Your browser does not support getUserMedia API');
+    return;
   }
-}
 
-function getUserMediaSuccess(stream) {
-  localStream = stream;
-  localVideo.srcObject = stream;
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+
+    localStream = stream;
+    localVideo.srcObject = stream;
+  } catch(error) {
+    errorHandler(error);
+  }
 }
 
 function start(isCaller) {
   peerConnection = new RTCPeerConnection(peerConnectionConfig);
   peerConnection.onicecandidate = gotIceCandidate;
   peerConnection.ontrack = gotRemoteStream;
-  peerConnection.addStream(localStream);
+
+  for(const track of localStream.getTracks()) {
+    peerConnection.addTrack(track, localStream);
+  }
 
   if(isCaller) {
     peerConnection.createOffer().then(createdDescription).catch(errorHandler);
@@ -60,9 +66,9 @@ function gotMessageFromServer(message) {
   if(signal.sdp) {
     peerConnection.setRemoteDescription(new RTCSessionDescription(signal.sdp)).then(() => {
       // Only create answers in response to offers
-      if(signal.sdp.type == 'offer') {
-        peerConnection.createAnswer().then(createdDescription).catch(errorHandler);
-      }
+      if(signal.sdp.type !== 'offer') return;
+
+      peerConnection.createAnswer().then(createdDescription).catch(errorHandler);
     }).catch(errorHandler);
   } else if(signal.ice) {
     peerConnection.addIceCandidate(new RTCIceCandidate(signal.ice)).catch(errorHandler);

@@ -9,6 +9,8 @@ Note: This repo is kept updated. The general ideas are there, but the above blog
 
 ## Usage
 
+If you use `asdf` to manage tool versions a `.tool-versions` file is included in this repo.
+
 The signaling server uses Node.js and `ws` and can be started as such:
 
 ```

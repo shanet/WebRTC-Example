@@ -3,7 +3,7 @@ WebRTC Example
 
 An 'as simple as it gets' WebRTC example.
 
-See [https://shanetully.com/2014/09/a-dead-simple-webrtc-example/](https://shanetully.com/2014/09/a-dead-simple-webrtc-example/) for a detailed walkthrough of the code.
+See [https://ephemeral.cx/2014/09/a-dead-simple-webrtc-example/](https://ephemeral.cx/2014/09/a-dead-simple-webrtc-example/) for a detailed walkthrough of the code.
 
 Note: This repo is kept updated. The general ideas are there, but the above blog post may be somewhat out of date with the code in this repo.
 
@@ -34,7 +34,7 @@ This is a short example that I don't check often. As such, I rely on users for r
 
 The MIT License (MIT)
 
-Copyright (c) 2014 Shane Tully
+Copyright (c) 2014 Kira Tully
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

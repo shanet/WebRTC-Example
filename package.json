@@ -19,6 +19,6 @@
   },
   "homepage": "https://github.com/shanet/WebRTC-Example",
   "dependencies": {
-    "ws": "^8.17.1"
+    "ws": "^8.20.1"
   }
 }

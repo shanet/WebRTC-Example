@@ -4,6 +4,7 @@ let peerConnection;
 let remoteVideo;
 let serverConnection;
 let uuid;
+const HTTPS_PORT = process.env.PORT || 8443;
 
 const peerConnectionConfig = {
   'iceServers': [
@@ -18,7 +19,7 @@ async function pageReady() {
   localVideo = document.getElementById('localVideo');
   remoteVideo = document.getElementById('remoteVideo');
 
-  serverConnection = new WebSocket(`wss://${window.location.hostname}:8443`);
+  serverConnection = new WebSocket(`wss://${window.location.hostname}:${HTTPS_PORT}`);
   serverConnection.onmessage = gotMessageFromServer;
 
   const constraints = {
